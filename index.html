@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <title>Tabletop Games — SET &amp; Spot It!</title>
+  <meta name="description" content="Offline-ready SET Solitaire and Spot It! (Dobble) games for phones, tablets, and desktop.">
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: light-dark(#f4f1ea, #12151c);
+      --surface: light-dark(#ffffff, #1c212b);
+      --subtle: light-dark(#e9e4da, #262d3a);
+      --border: light-dark(#dfd8cc, #2f3746);
+      --text: light-dark(#1a1e24, #eef2f7);
+      --muted: light-dark(#5b6472, #9aa4b4);
+      --set-accent: light-dark(#2457d6, #5c8dff);
+      --spot-accent: light-dark(#d9480f, #ff7a45);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      justify-content: center;
+      padding: max(24px, env(safe-area-inset-top)) 16px max(32px, env(safe-area-inset-bottom));
+    }
+    .wrap {
+      width: 100%;
+      max-width: 780px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    header h1 {
+      margin: 0 0 6px;
+      font-size: clamp(1.6rem, 4vw, 2.1rem);
+      font-weight: 850;
+      letter-spacing: -0.02em;
+    }
+    header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.5;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: light-dark(0 8px 24px rgba(20, 24, 31, 0.06), 0 10px 28px rgba(0, 0, 0, 0.35));
+    }
+    .card-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .card-head img {
+      width: 60px;
+      height: 60px;
+      border-radius: 14px;
+      flex-shrink: 0;
+    }
+    .card-head h2 {
+      margin: 0 0 2px;
+      font-size: 1.25rem;
+      font-weight: 850;
+    }
+    .card-head .tag {
+      font-size: 0.82rem;
+      font-weight: 650;
+      color: var(--muted);
+    }
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.93rem;
+      line-height: 1.5;
+      flex: 1;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .btn {
+      flex: 1 1 120px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 44px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 750;
+      font-size: 0.92rem;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      background: var(--subtle);
+      color: var(--text);
+      transition: transform 0.12s ease, opacity 0.12s ease;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-set {
+      background: var(--set-accent);
+      border-color: var(--set-accent);
+      color: #fff;
+    }
+    .btn-spot {
+      background: var(--spot-accent);
+      border-color: var(--spot-accent);
+      color: #fff;
+    }
+    .guide {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px 20px;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      color: var(--muted);
+    }
+    .guide h3 {
+      margin: 0 0 8px;
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 800;
+    }
+    .guide ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+    .guide li { margin-bottom: 5px; }
+    .guide strong { color: var(--text); }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <h1>Tabletop Games</h1>
+      <p>Fast, ad-free, 100% offline-capable card games for tablets, phones, and desktop.</p>
+    </header>
+
+    <section class="grid" aria-label="Available games">
+      <article class="card">
+        <div class="card-head">
+          <img src="./set/icons/icon.svg" alt="SET Solitaire icon">
+          <div>
+            <h2>SET Solitaire</h2>
+            <div class="tag">81-Card Pattern Logic · 3 Modes</div>
+          </div>
+        </div>
+        <p>Find trios where every feature (Color, Shape, Count, Shading) is all the same or all different. Includes Classic Speedrun, Daily 6, Zen, Auto-deal +3, and Colorblind mode.</p>
+        <div class="actions">
+          <a class="btn btn-set" href="./set/">Play Now</a>
+          <a class="btn" href="./downloads/set-solitaire.apk" download>Android APK</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <img src="./spot-it/icons/icon.svg" alt="Spot It! icon">
+          <div>
+            <h2>Spot It!</h2>
+            <div class="tag">Projective Plane · Solo &amp; 2P Duel</div>
+          </div>
+        </div>
+        <p>Spot the single shared symbol between two circular cards across dramatic size &amp; rotation changes. Includes Sprint, 60s Blitz, Zen, 2-Player Tabletop Duel, and 3 difficulty tiers.</p>
+        <div class="actions">
+          <a class="btn btn-spot" href="./spot-it/">Play Now</a>
+          <a class="btn" href="./downloads/spot-it.apk" download>Android APK</a>
+        </div>
+      </article>
+    </section>
+
+    <section class="guide">
+      <h3>Install Offline on Any Device</h3>
+      <ul>
+        <li><strong>Android (Standalone APK):</strong> Tap <em>Android APK</em> above, open the downloaded file, and tap <em>Install</em>. Runs 100% offline with zero permissions.</li>
+        <li><strong>Android (Chrome PWA):</strong> Tap <em>Play Now</em>, then open Chrome's <strong>⋮</strong> menu → <em>Add to Home screen / Install app</em>.</li>
+        <li><strong>iPhone &amp; iPad (Safari):</strong> Tap <em>Play Now</em>, tap the <strong>Share</strong> icon → <em>Add to Home Screen</em>. Works completely offline afterward!</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

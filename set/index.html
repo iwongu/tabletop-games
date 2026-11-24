@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <script>
+    try {
+      document.querySelector('meta[name="color-scheme"]').content =
+        localStorage.getItem('color-scheme') ?? 'light dark';
+    } catch {}
+  </script>
+  <meta name="theme-color" content="#f5f3ee" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#14171c" media="(prefers-color-scheme: dark)">
+  <meta name="description" content="Single-player SET card game — offline PWA designed for tablets and desktop.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>SET Solitaire</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="./icons/icon.svg">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <!-- Hidden shared SVG pattern definitions for striped shading -->
+  <svg class="svg-defs" aria-hidden="true" focusable="false">
+    <defs>
+      <pattern id="stripe-0" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <line x1="0" y1="0" x2="0" y2="8" stroke="var(--card-c0)" stroke-width="3.6" />
+      </pattern>
+      <pattern id="stripe-1" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <line x1="0" y1="0" x2="0" y2="8" stroke="var(--card-c1)" stroke-width="3.6" />
+      </pattern>
+      <pattern id="stripe-2" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <line x1="0" y1="0" x2="0" y2="8" stroke="var(--card-c2)" stroke-width="3.6" />
+      </pattern>
+    </defs>
+  </svg>
+
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand-group">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 28 28" width="24" height="24">
+            <polygon points="14,3 24,14 14,25 4,14" fill="none" stroke="var(--card-c0)" stroke-width="2.8" stroke-linejoin="round"/>
+            <circle cx="14" cy="14" r="3.4" fill="var(--card-c2)"/>
+          </svg>
+        </span>
+        <span class="brand-title">SET</span>
+        <div class="mode-switcher" role="group" aria-label="Game mode">
+          <button type="button" class="mode-pill" data-mode="classic" aria-pressed="true">Classic</button>
+          <button type="button" class="mode-pill" data-mode="daily" aria-pressed="false">Daily 6</button>
+          <button type="button" class="mode-pill" data-mode="zen" aria-pressed="false">Zen</button>
+        </div>
+      </div>
+
+      <div class="hud-stats" aria-label="Game statistics">
+        <div class="stat-chip" id="stat-timer-wrap">
+          <span class="stat-label">Time</span>
+          <span class="stat-value" id="stat-timer">00:00</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-label" id="stat-sets-label">SETs</span>
+          <span class="stat-value" id="stat-sets">0</span>
+        </div>
+        <div class="stat-chip" id="stat-deck-wrap">
+          <span class="stat-label">Deck</span>
+          <span class="stat-value" id="stat-deck">69</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button type="button" class="icon-btn" id="btn-rules" aria-label="How to play" title="How to play">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </button>
+        <button type="button" class="icon-btn" id="btn-settings" aria-label="Settings" title="Settings">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="status-banner" id="status-banner" role="status" aria-live="polite">
+      <span id="status-text">Find 3 cards where each feature is all the same or all different.</span>
+    </div>
+
+    <main class="board-stage">
+      <section class="card-grid" id="card-grid" aria-label="SET card board"></section>
+
+      <aside class="daily-tray" id="daily-tray" hidden aria-label="Found SETs in today's puzzle">
+        <div class="daily-tray-head">
+          <span id="daily-title">Daily Puzzle</span>
+          <span id="daily-progress">0 / 6 found</span>
+        </div>
+        <div class="daily-slots" id="daily-slots"></div>
+      </aside>
+    </main>
+
+    <footer class="control-bar">
+      <button type="button" class="action-btn" id="btn-hint">
+        <span class="btn-icon" aria-hidden="true">✦</span>
+        <span>Hint</span>
+      </button>
+      <button type="button" class="action-btn" id="btn-deal">
+        <span class="btn-icon" aria-hidden="true">+3</span>
+        <span id="btn-deal-label">No SET</span>
+      </button>
+      <button type="button" class="action-btn" id="btn-shuffle">
+        <span class="btn-icon" aria-hidden="true">⇄</span>
+        <span>Shuffle</span>
+      </button>
+      <button type="button" class="action-btn action-primary" id="btn-new">
+        <span>New Game</span>
+      </button>
+    </footer>
+  </div>
+
+  <!-- Rules / How to Play Modal -->
+  <dialog id="dialog-rules" closedby="any" aria-labelledby="rules-title">
+    <div class="dialog-header">
+      <h1 id="rules-title">How to Play SET</h1>
+      <form method="dialog">
+        <button type="submit" class="icon-btn" aria-label="Close">✕</button>
+      </form>
+    </div>
+    <div class="dialog-body">
+      <p>Every card has <strong>4 features</strong>, each with 3 variations:</p>
+      <ul class="feature-list">
+        <li><strong>Color:</strong> Red, Green, or Purple</li>
+        <li><strong>Shape:</strong> Diamond, Squiggle, or Oval</li>
+        <li><strong>Count:</strong> 1, 2, or 3 symbols</li>
+        <li><strong>Shading:</strong> Solid, Striped, or Open</li>
+      </ul>
+      <div class="rule-callout">
+        <strong>The Golden Rule:</strong> Pick 3 cards where <em>each</em> of the 4 features is either <strong>all the same</strong> or <strong>all different</strong>. Never 2-and-1!
+      </div>
+      <div class="example-block">
+        <p class="example-label">Valid SET — same shape &amp; color, all different counts &amp; shadings:</p>
+        <div class="example-row" id="example-valid"></div>
+      </div>
+      <div class="example-block">
+        <p class="example-label">Not a SET — 2 Red and 1 Green breaks the Color rule:</p>
+        <div class="example-row" id="example-invalid"></div>
+      </div>
+      <p class="rules-footnote">
+        <strong>Classic:</strong> Clear the 81-card deck as fast as you can.<br>
+        <strong>Daily 6:</strong> Find 6 distinct SETs hidden inside today's fixed 12-card board.<br>
+        <strong>Zen:</strong> Untimed endless practice.
+      </p>
+    </div>
+    <form method="dialog" class="dialog-footer">
+      <button type="submit" class="action-btn action-primary" autofocus>Got it</button>
+    </form>
+  </dialog>
+
+  <!-- Settings Modal -->
+  <dialog id="dialog-settings" closedby="any" aria-labelledby="settings-title">
+    <div class="dialog-header">
+      <h1 id="settings-title">Settings</h1>
+      <form method="dialog">
+        <button type="submit" class="icon-btn" aria-label="Close">✕</button>
+      </form>
+    </div>
+    <div class="dialog-body settings-list">
+      <div class="setting-row">
+        <div>
+          <div class="setting-title">Appearance</div>
+          <div class="setting-desc" id="scheme-system-hint">Follow system preference</div>
+        </div>
+        <div class="segmented" role="radiogroup" aria-label="Color scheme">
+          <button type="button" class="seg-btn" data-scheme="system" aria-checked="true">System</button>
+          <button type="button" class="seg-btn" data-scheme="light" aria-checked="false">Light</button>
+          <button type="button" class="seg-btn" data-scheme="dark" aria-checked="false">Dark</button>
+        </div>
+      </div>
+
+      <label class="setting-row setting-toggle">
+        <div>
+          <div class="setting-title">Colorblind-friendly palette</div>
+          <div class="setting-desc">High-contrast Vermilion, Blue &amp; Gold</div>
+        </div>
+        <input type="checkbox" id="opt-colorblind">
+      </label>
+
+      <label class="setting-row setting-toggle">
+        <div>
+          <div class="setting-title">Auto-deal +3 when no SET</div>
+          <div class="setting-desc">Automatically add cards if a 12-card board has zero SETs</div>
+        </div>
+        <input type="checkbox" id="opt-autodeal" checked>
+      </label>
+
+      <label class="setting-row setting-toggle">
+        <div>
+          <div class="setting-title">Show available SET count</div>
+          <div class="setting-desc">Display how many SETs are currently on the board</div>
+        </div>
+        <input type="checkbox" id="opt-showcount">
+      </label>
+
+      <label class="setting-row setting-toggle">
+        <div>
+          <div class="setting-title">Sound effects</div>
+          <div class="setting-desc">Soft audio feedback on tap, match, and mismatch</div>
+        </div>
+        <input type="checkbox" id="opt-sound" checked>
+      </label>
+
+      <div class="best-times-box" id="best-times-box">
+        <div class="setting-title">Personal Records</div>
+        <div class="records-grid" id="records-grid"></div>
+      </div>
+    </div>
+    <form method="dialog" class="dialog-footer">
+      <button type="submit" class="action-btn action-primary" autofocus>Done</button>
+    </form>
+  </dialog>
+
+  <!-- Victory / Summary Modal -->
+  <dialog id="dialog-win" closedby="any" aria-labelledby="win-title">
+    <div class="dialog-header">
+      <h1 id="win-title">Deck Cleared!</h1>
+      <form method="dialog">
+        <button type="submit" class="icon-btn" aria-label="Close">✕</button>
+      </form>
+    </div>
+    <div class="dialog-body">
+      <p class="win-subtitle" id="win-subtitle">Every valid SET has been found.</p>
+      <div class="win-stats" id="win-stats"></div>
+    </div>
+    <form method="dialog" class="dialog-footer">
+      <button type="submit" value="close" class="action-btn">Inspect Board</button>
+      <button type="submit" value="new" class="action-btn action-primary" autofocus>Play Again</button>
+    </form>
+  </dialog>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

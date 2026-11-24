@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="108" fill="#d9480f"/>
+  <circle cx="256" cy="256" r="196" fill="#fffdf9" stroke="#f4d7c4" stroke-width="16"/>
+  <!-- Stylized geometric Spot It! emblem: Star, Lightning, Crown-like triangle, Circle -->
+  <polygon points="256,112 276,172 338,172 288,208 307,268 256,232 205,268 224,208 174,172 236,172" fill="#f59e0b"/>
+  <circle cx="176" cy="310" r="44" fill="#e63946"/>
+  <polygon points="340,264 388,348 292,348" fill="#0f8a4b"/>
+  <rect x="234" y="324" width="44" height="44" rx="10" transform="rotate(20 256 346)" fill="#2563eb"/>
+</svg>

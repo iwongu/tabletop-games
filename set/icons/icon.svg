@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="104" fill="#f5f3ee"/>
+  <rect x="44" y="96" width="424" height="320" rx="44" fill="#ffffff" stroke="#dcd6cb" stroke-width="10"/>
+  <!-- Red solid diamond -->
+  <polygon points="148,148 196,256 148,364 100,256" fill="#d92638" stroke="#d92638" stroke-width="10" stroke-linejoin="round"/>
+  <!-- Green open oval -->
+  <rect x="216" y="150" width="80" height="212" rx="40" fill="none" stroke="#0f8a4b" stroke-width="14"/>
+  <!-- Purple solid squiggle -->
+  <path d="M 350 156 C 386 144 416 172 404 210 C 396 236 385 244 397 274 C 410 308 398 354 360 352 C 330 350 322 318 336 286 C 348 258 352 246 338 218 C 324 190 326 164 350 156 Z" fill="#6d28d9" stroke="#6d28d9" stroke-width="8" stroke-linejoin="round"/>
+</svg>

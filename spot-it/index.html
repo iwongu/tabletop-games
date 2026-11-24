@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <script>
+    try {
+      document.querySelector('meta[name="color-scheme"]').content =
+        localStorage.getItem('color-scheme') ?? 'light dark';
+    } catch {}
+  </script>
+  <meta name="theme-color" content="#f5f0e6" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#13161d" media="(prefers-color-scheme: dark)">
+  <meta name="description" content="Spot It! (Dobble) — fast visual pattern-matching PWA for tablets and desktop.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Spot It!</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="./icons/icon.svg">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell" id="app-shell">
+    <header class="topbar">
+      <div class="top-left">
+        <button type="button" class="mode-trigger" id="btn-mode" title="Change mode or difficulty">
+          <span id="mode-trigger-label">Sprint · 8</span>
+          <span class="caret" aria-hidden="true">▾</span>
+        </button>
+
+        <div class="inline-stats" id="hud-stats" aria-label="Game statistics">
+          <span class="inline-stat" id="stat-timer-wrap"><span id="stat-timer">00:00</span></span>
+          <span class="inline-stat" id="stat-score-wrap"><strong id="stat-score">56</strong> <span class="stat-unit" id="stat-score-label">left</span></span>
+          <span class="inline-stat" id="stat-streak-wrap" aria-label="Streak">🔥<span id="stat-streak">0</span></span>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <button type="button" class="icon-btn" id="btn-hint" aria-label="Hint" title="Hint">✦</button>
+        <button type="button" class="icon-btn" id="btn-rotate" aria-label="Spin cards" title="Spin cards">↻</button>
+        <button type="button" class="icon-btn" id="btn-new" aria-label="New game" title="New game">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="23 4 23 10 17 10"/>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+          </svg>
+        </button>
+        <button type="button" class="icon-btn" id="btn-rules" aria-label="How to play" title="How to play">?</button>
+        <button type="button" class="icon-btn" id="btn-settings" aria-label="Settings" title="Settings">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Single-Player Stage: Just two giant circular cards + subtle floating toast -->
+    <main class="solo-stage" id="solo-stage">
+      <div class="spot-card" id="card-top" role="group" aria-label="Top card"></div>
+      <div class="spot-card" id="card-bottom" role="group" aria-label="Bottom card"></div>
+      <div class="float-toast" id="status-banner" role="status" aria-live="polite" data-visible="false">
+        <span id="status-text"></span>
+      </div>
+    </main>
+
+    <!-- 2-Player Tabletop Duel Stage -->
+    <main class="duel-stage" id="duel-stage" hidden>
+      <section class="duel-player duel-p2" aria-label="Player 2 area">
+        <span class="duel-score-badge" id="duel-score-p2">P2 · 0</span>
+        <div class="spot-card duel-card" id="duel-card-p2" role="group" aria-label="Player 2 card"></div>
+      </section>
+
+      <section class="duel-center" aria-label="Shared deck card">
+        <div class="duel-center-meta">
+          <span class="duel-deck-pill" id="duel-deck-left">54 left</span>
+          <span class="duel-feedback" id="duel-feedback">Tap YOUR card</span>
+        </div>
+        <div class="spot-card duel-card-center" id="duel-card-center" role="group" aria-label="Center deck card"></div>
+      </section>
+
+      <section class="duel-player duel-p1" aria-label="Player 1 area">
+        <div class="spot-card duel-card" id="duel-card-p1" role="group" aria-label="Player 1 card"></div>
+        <span class="duel-score-badge" id="duel-score-p1">P1 · 0</span>
+      </section>
+    </main>
+  </div>
+
+  <!-- How to Play Modal -->
+  <dialog id="dialog-rules" closedby="any" aria-labelledby="rules-title">
+    <div class="dialog-header">
+      <h1 id="rules-title">How to Play Spot It!</h1>
+      <form method="dialog">
+        <button type="submit" class="icon-btn" aria-label="Close">✕</button>
+      </form>
+    </div>
+    <div class="dialog-body">
+      <div class="rule-callout">
+        <strong>The Magic Rule:</strong> Any two cards share <strong>exactly ONE matching symbol</strong> — never zero, never two!
+      </div>
+      <p>Symbols vary dramatically in <strong>size</strong> and <strong>rotation</strong>. Tap the matching symbol on either card as fast as you can.</p>
+      <ul class="feature-list">
+        <li><strong>Sprint:</strong> Clear the full deck in the fastest time.</li>
+        <li><strong>60s Blitz:</strong> Score as many matches as possible in 60 seconds (streaks multiply points; misses cost 2s).</li>
+        <li><strong>Zen:</strong> Untimed relaxed spotting with hints.</li>
+        <li><strong>2P Duel:</strong> Lay the tablet flat between two players and tap the match on <em>your own</em> card!</li>
+      </ul>
+    </div>
+    <form method="dialog" class="dialog-footer">
+      <button type="submit" class="action-btn action-primary" autofocus>Let's Play</button>
+    </form>
+  </dialog>
+
+  <!-- Settings & Mode Modal -->
+  <dialog id="dialog-settings" closedby="any" aria-labelledby="settings-title">
+    <div class="dialog-header">
+      <h1 id="settings-title">Game &amp; Settings</h1>
+      <form method="dialog">
+        <button type="submit" class="icon-btn" aria-label="Close">✕</button>
+      </form>
+    </div>
+    <div class="dialog-body settings-list">
+      <div class="setting-stack">
+        <div class="setting-title">Mode</div>
+        <div class="segmented segmented-full" role="radiogroup" aria-label="Game mode">
+          <button type="button" class="seg-btn" data-mode="sprint" aria-checked="true">Sprint</button>
+          <button type="button" class="seg-btn" data-mode="blitz" aria-checked="false">60s</button>
+          <button type="button" class="seg-btn" data-mode="zen" aria-checked="false">Zen</button>
+          <button type="button" class="seg-btn" data-mode="duel" aria-checked="false">2P Duel</button>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-title">Difficulty</div>
+          <div class="setting-desc">Symbols per card</div>
+        </div>
+        <div class="segmented" role="radiogroup" aria-label="Difficulty">
+          <button type="button" class="seg-btn" data-diff="easy" aria-checked="false">Easy (4)</button>
+          <button type="button" class="seg-btn" data-diff="medium" aria-checked="false">Med (6)</button>
+          <button type="button" class="seg-btn" data-diff="classic" aria-checked="true">Classic (8)</button>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-title">Appearance</div>
+          <div class="setting-desc" id="scheme-system-hint">System preference</div>
+        </div>
+        <div class="segmented" role="radiogroup" aria-label="Color scheme">
+          <button type="button" class="seg-btn" data-scheme="system" aria-checked="true">System</button>
+          <button type="button" class="seg-btn" data-scheme="light" aria-checked="false">Light</button>
+          <button type="button" class="seg-btn" data-scheme="dark" aria-checked="false">Dark</button>
+        </div>
+      </div>
+
+      <label class="setting-row setting-toggle">
+        <div>
+          <div class="setting-title">Rotate symbols randomly</div>
+          <div class="setting-desc">Classic Spot It! challenge</div>
+        </div>
+        <input type="checkbox" id="opt-rotate" checked>
+      </label>
+
+      <label class="setting-row setting-toggle">
+        <div>
+          <div class="setting-title">Sound effects</div>
+          <div class="setting-desc">Chimes on match and finish</div>
+        </div>
+        <input type="checkbox" id="opt-sound" checked>
+      </label>
+
+      <div class="best-times-box">
+        <div class="setting-title">Personal Records</div>
+        <div class="records-grid" id="records-grid"></div>
+      </div>
+    </div>
+    <form method="dialog" class="dialog-footer">
+      <button type="submit" class="action-btn action-primary" autofocus>Done</button>
+    </form>
+  </dialog>
+
+  <!-- Victory / Summary Modal -->
+  <dialog id="dialog-win" closedby="any" aria-labelledby="win-title">
+    <div class="dialog-header">
+      <h1 id="win-title">Deck Cleared!</h1>
+      <form method="dialog">
+        <button type="submit" class="icon-btn" aria-label="Close">✕</button>
+      </form>
+    </div>
+    <div class="dialog-body">
+      <p class="win-subtitle" id="win-subtitle">Sharp eyes!</p>
+      <div class="win-stats" id="win-stats"></div>
+    </div>
+    <form method="dialog" class="dialog-footer">
+      <button type="submit" value="close" class="action-btn">Close</button>
+      <button type="submit" value="new" class="action-btn action-primary" autofocus>Play Again</button>
+    </form>
+  </dialog>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
