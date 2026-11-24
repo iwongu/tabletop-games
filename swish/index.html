@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <script>
+    try {
+      document.querySelector('meta[name="color-scheme"]').content =
+        localStorage.getItem('color-scheme') ?? 'light dark';
+    } catch {}
+  </script>
+  <meta name="theme-color" content="#f1f4f8" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#10151f" media="(prefers-color-scheme: dark)">
+  <meta name="description" content="Swish — transparent-card spatial stacking game for tablets and desktop.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Swish</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="./icons/icon.svg">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell" id="app-shell">
+    <header class="topbar">
+      <div class="top-left">
+        <button type="button" class="mode-trigger" id="btn-mode" title="Change game mode">
+          <span id="mode-trigger-label">Classic</span>
+          <span class="caret" aria-hidden="true">▾</span>
+        </button>
+
+        <div class="inline-stats" aria-label="Game statistics">
+          <span class="inline-stat" id="stat-timer-wrap"><span id="stat-timer">00:00</span></span>
+          <span class="inline-stat"><strong id="stat-score">0</strong> <span class="stat-unit" id="stat-score-label">pts</span></span>
+          <span class="inline-stat" id="stat-deck-wrap"><strong id="stat-deck">44</strong> <span class="stat-unit">deck</span></span>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <button type="button" class="icon-btn" id="btn-clear" aria-label="Clear selection" title="Clear selection" hidden>✕</button>
+        <button type="button" class="icon-btn" id="btn-hint" aria-label="Hint" title="Hint">✦</button>
+        <button type="button" class="icon-btn" id="btn-new" aria-label="New game" title="New game">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="23 4 23 10 17 10"/>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+          </svg>
+        </button>
+        <button type="button" class="icon-btn" id="btn-rules" aria-label="How to play" title="How to play">?</button>
+        <button type="button" class="icon-btn" id="btn-settings" aria-label="Settings" title="Settings">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="board-stage">
+      <section class="swish-grid" id="swish-grid" aria-label="16 transparent Swish cards"></section>
+
+      <!-- Floating feedback toast -->
+      <div class="float-toast" id="status-banner" role="status" aria-live="polite" data-visible="false">
+        <span id="status-text"></span>
+      </div>
+
+      <!-- Transparent Stack Proof Overlay (visually shows the stacked cards snapping balls into hoops!) -->
+      <div class="stack-overlay" id="stack-overlay" hidden aria-live="polite">
+        <div class="stack-card-box">
+          <div class="stack-preview" id="stack-preview"></div>
+          <div class="stack-caption" id="stack-caption">Swish!</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- How to Play Modal -->
+  <dialog id="dialog-rules" closedby="any" aria-labelledby="rules-title">
+    <div class="dialog-header">
+      <h1 id="rules-title">How to Play Swish</h1>
+      <form method="dialog">
+        <button type="submit" class="icon-btn" aria-label="Close">✕</button>
+      </form>
+    </div>
+    <div class="dialog-body">
+      <div class="rule-callout">
+        <strong>The Goal:</strong> Pick <strong>2 or more</strong> transparent cards that can be <strong>flipped or rotated 180°</strong> and stacked so <strong>every Ball lands inside a Hoop of the exact same color</strong>—with nothing left over!
+      </div>
+      <ul class="feature-list">
+        <li>Each card is a transparent <strong>3×4 grid</strong> with 1 solid Ball and 1 hollow Hoop.</li>
+        <li>Cards may be flipped horizontally, flipped vertically, or rotated 180° (never rotated 90°).</li>
+        <li>Tap 2 cards (or 3–4 cards for bigger combos!). As soon as your selected cards form a valid Swish, you'll see them snap together in their exact stacked solution!</li>
+      </ul>
+    </div>
+    <form method="dialog" class="dialog-footer">
+      <button type="submit" class="action-btn action-primary" autofocus>Got it</button>
+    </form>
+  </dialog>
+
+  <!-- Settings & Mode Modal -->
+  <dialog id="dialog-settings" closedby="any" aria-labelledby="settings-title">
+    <div class="dialog-header">
+      <h1 id="settings-title">Game &amp; Settings</h1>
+      <form method="dialog">
+        <button type="submit" class="icon-btn" aria-label="Close">✕</button>
+      </form>
+    </div>
+    <div class="dialog-body settings-list">
+      <div class="setting-stack">
+        <div class="setting-title">Mode</div>
+        <div class="segmented segmented-3" role="radiogroup" aria-label="Game mode">
+          <button type="button" class="seg-btn" data-mode="classic" aria-checked="true">Classic</button>
+          <button type="button" class="seg-btn" data-mode="blitz" aria-checked="false">60s</button>
+          <button type="button" class="seg-btn" data-mode="zen" aria-checked="false">Zen</button>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-title">Appearance</div>
+          <div class="setting-desc" id="scheme-system-hint">System preference</div>
+        </div>
+        <div class="segmented" role="radiogroup" aria-label="Color scheme">
+          <button type="button" class="seg-btn" data-scheme="system" aria-checked="true">System</button>
+          <button type="button" class="seg-btn" data-scheme="light" aria-checked="false">Light</button>
+          <button type="button" class="seg-btn" data-scheme="dark" aria-checked="false">Dark</button>
+        </div>
+      </div>
+
+      <label class="setting-row setting-toggle">
+        <div>
+          <div class="setting-title">Show 3×4 grid dots</div>
+          <div class="setting-desc">Subtle position dots inside each transparent card</div>
+        </div>
+        <input type="checkbox" id="opt-dots" checked>
+      </label>
+
+      <label class="setting-row setting-toggle">
+        <div>
+          <div class="setting-title">Sound effects</div>
+          <div class="setting-desc">Audio feedback on tap and Swish</div>
+        </div>
+        <input type="checkbox" id="opt-sound" checked>
+      </label>
+
+      <div class="best-times-box">
+        <div class="setting-title">Personal Records</div>
+        <div class="records-grid" id="records-grid"></div>
+      </div>
+    </div>
+    <form method="dialog" class="dialog-footer">
+      <button type="submit" class="action-btn action-primary" autofocus>Done</button>
+    </form>
+  </dialog>
+
+  <!-- Victory / Summary Modal -->
+  <dialog id="dialog-win" closedby="any" aria-labelledby="win-title">
+    <div class="dialog-header">
+      <h1 id="win-title">Deck Complete!</h1>
+      <form method="dialog">
+        <button type="submit" class="icon-btn" aria-label="Close">✕</button>
+      </form>
+    </div>
+    <div class="dialog-body">
+      <p class="win-subtitle" id="win-subtitle">Sharp spatial vision!</p>
+      <div class="win-stats" id="win-stats"></div>
+    </div>
+    <form method="dialog" class="dialog-footer">
+      <button type="submit" value="close" class="action-btn">Close</button>
+      <button type="submit" value="new" class="action-btn action-primary" autofocus>Play Again</button>
+    </form>
+  </dialog>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

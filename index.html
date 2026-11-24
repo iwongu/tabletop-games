@@ -4,19 +4,26 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="light dark">
-  <title>Tabletop Games — SET &amp; Spot It!</title>
-  <meta name="description" content="Offline-ready SET Solitaire and Spot It! (Dobble) games for phones, tablets, and desktop.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Tabletop Games">
+  <title>Tabletop Games — 6 Offline Card &amp; Board Games</title>
+  <meta name="description" content="Offline-ready SET Solitaire, Spot It!, Ghost Blitz, Blink, Swish, and Ricochet Robots for iOS, Android, tablets, and desktop.">
   <style>
     :root {
       color-scheme: light dark;
-      --bg: light-dark(#f4f1ea, #12151c);
-      --surface: light-dark(#ffffff, #1c212b);
-      --subtle: light-dark(#e9e4da, #262d3a);
-      --border: light-dark(#dfd8cc, #2f3746);
+      --bg: light-dark(#f4f1ea, #0f141e);
+      --surface: light-dark(#ffffff, #182030);
+      --subtle: light-dark(#e9e4da, #232d40);
+      --border: light-dark(#dfd8cc, #2d3950);
       --text: light-dark(#1a1e24, #eef2f7);
       --muted: light-dark(#5b6472, #9aa4b4);
-      --set-accent: light-dark(#2457d6, #5c8dff);
-      --spot-accent: light-dark(#d9480f, #ff7a45);
+      --c-set: light-dark(#2457d6, #5c8dff);
+      --c-spot: light-dark(#d9480f, #ff7a45);
+      --c-ghost: light-dark(#6d28d9, #a78bfa);
+      --c-blink: light-dark(#0f766e, #2dd4bf);
+      --c-swish: light-dark(#0284c7, #38bdf8);
+      --c-ricochet: light-dark(#b45309, #f59e0b);
     }
     *, *::before, *::after { box-sizing: border-box; }
     body {
@@ -27,18 +34,18 @@
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
       display: flex;
       justify-content: center;
-      padding: max(24px, env(safe-area-inset-top)) 16px max(32px, env(safe-area-inset-bottom));
+      padding: max(20px, env(safe-area-inset-top)) 14px max(32px, env(safe-area-inset-bottom));
     }
     .wrap {
       width: 100%;
-      max-width: 780px;
+      max-width: 960px;
       display: flex;
       flex-direction: column;
       gap: 20px;
     }
     header h1 {
       margin: 0 0 6px;
-      font-size: clamp(1.6rem, 4vw, 2.1rem);
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
       font-weight: 850;
       letter-spacing: -0.02em;
     }
@@ -50,80 +57,77 @@
     }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 14px;
     }
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 22px;
-      padding: 20px;
+      border-radius: 20px;
+      padding: 18px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      box-shadow: light-dark(0 8px 24px rgba(20, 24, 31, 0.06), 0 10px 28px rgba(0, 0, 0, 0.35));
+      gap: 12px;
+      box-shadow: light-dark(0 6px 20px rgba(20, 24, 31, 0.06), 0 8px 24px rgba(0, 0, 0, 0.35));
     }
     .card-head {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
     }
     .card-head img {
-      width: 60px;
-      height: 60px;
+      width: 56px;
+      height: 56px;
       border-radius: 14px;
       flex-shrink: 0;
     }
     .card-head h2 {
       margin: 0 0 2px;
-      font-size: 1.25rem;
+      font-size: 1.18rem;
       font-weight: 850;
     }
     .card-head .tag {
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 650;
       color: var(--muted);
     }
     .card p {
       margin: 0;
       color: var(--muted);
-      font-size: 0.93rem;
-      line-height: 1.5;
+      font-size: 0.9rem;
+      line-height: 1.48;
       flex: 1;
     }
     .actions {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 8px;
     }
     .btn {
-      flex: 1 1 120px;
+      flex: 1 1 110px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
-      min-height: 44px;
-      padding: 10px 14px;
-      border-radius: 12px;
+      min-height: 42px;
+      padding: 9px 12px;
+      border-radius: 11px;
       font-weight: 750;
-      font-size: 0.92rem;
+      font-size: 0.9rem;
       text-decoration: none;
       border: 1px solid var(--border);
       background: var(--subtle);
       color: var(--text);
-      transition: transform 0.12s ease, opacity 0.12s ease;
+      transition: transform 0.12s ease;
     }
     .btn:active { transform: scale(0.97); }
-    .btn-set {
-      background: var(--set-accent);
-      border-color: var(--set-accent);
-      color: #fff;
-    }
-    .btn-spot {
-      background: var(--spot-accent);
-      border-color: var(--spot-accent);
-      color: #fff;
-    }
+    .btn-primary { color: #fff; border-color: transparent; }
+    .btn-set { background: var(--c-set); }
+    .btn-spot { background: var(--c-spot); }
+    .btn-ghost { background: var(--c-ghost); }
+    .btn-blink { background: var(--c-blink); }
+    .btn-swish { background: var(--c-swish); }
+    .btn-ricochet { background: var(--c-ricochet); }
     .guide {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -151,7 +155,7 @@
   <main class="wrap">
     <header>
       <h1>Tabletop Games</h1>
-      <p>Fast, ad-free, 100% offline-capable card games for tablets, phones, and desktop.</p>
+      <p>Six fast, ad-free, 100% offline-capable tabletop games for iPhone, iPad, Android tablets, and desktop.</p>
     </header>
 
     <section class="grid" aria-label="Available games">
@@ -163,9 +167,9 @@
             <div class="tag">81-Card Pattern Logic · 3 Modes</div>
           </div>
         </div>
-        <p>Find trios where every feature (Color, Shape, Count, Shading) is all the same or all different. Includes Classic Speedrun, Daily 6, Zen, Auto-deal +3, and Colorblind mode.</p>
+        <p>Find trios where every feature (Color, Shape, Count, Shading) is all the same or all different. Classic Speedrun, Daily 6, Zen, and Colorblind mode.</p>
         <div class="actions">
-          <a class="btn btn-set" href="./set/">Play Now</a>
+          <a class="btn btn-primary btn-set" href="./set/">Play Now</a>
           <a class="btn" href="./downloads/set-solitaire.apk" download>Android APK</a>
         </div>
       </article>
@@ -178,20 +182,80 @@
             <div class="tag">Projective Plane · Solo &amp; 2P Duel</div>
           </div>
         </div>
-        <p>Spot the single shared symbol between two circular cards across dramatic size &amp; rotation changes. Includes Sprint, 60s Blitz, Zen, 2-Player Tabletop Duel, and 3 difficulty tiers.</p>
+        <p>Spot the single shared symbol between two circular cards across dramatic size &amp; rotation changes. Sprint, 60s Blitz, Zen, and 2P Tabletop Duel.</p>
         <div class="actions">
-          <a class="btn btn-spot" href="./spot-it/">Play Now</a>
+          <a class="btn btn-primary btn-spot" href="./spot-it/">Play Now</a>
           <a class="btn" href="./downloads/spot-it.apk" download>Android APK</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <img src="./ghost-blitz/icons/icon.svg" alt="Ghost Blitz icon">
+          <div>
+            <h2>Ghost Blitz</h2>
+            <div class="tag">Stroop Reflex · 5 Custom Tokens</div>
+          </div>
+        </div>
+        <p>Grab the exact matching object — or, if neither color nor shape matches, grab the single object completely absent from the card! Sprint, 60s, Zen &amp; 2P Duel.</p>
+        <div class="actions">
+          <a class="btn btn-primary btn-ghost" href="./ghost-blitz/">Play Now</a>
+          <a class="btn" href="./downloads/ghost-blitz.apk" download>Android APK</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <img src="./blink/icons/icon.svg" alt="Blink icon">
+          <div>
+            <h2>Blink</h2>
+            <div class="tag">Speed Matching · Solo, vs Bot &amp; 2P</div>
+          </div>
+        </div>
+        <p>Race to shed your hand by matching Color, Shape, or Count onto two center piles with 1-tap smart play. Sprint, real-time vs Bot (3 speeds), and 2P Duel.</p>
+        <div class="actions">
+          <a class="btn btn-primary btn-blink" href="./blink/">Play Now</a>
+          <a class="btn" href="./downloads/blink.apk" download>Android APK</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <img src="./swish/icons/icon.svg" alt="Swish icon">
+          <div>
+            <h2>Swish</h2>
+            <div class="tag">Spatial Stacking · Flip &amp; Rotate</div>
+          </div>
+        </div>
+        <p>Mentally stack 2 or 3 transparent cards (flipping or rotating 180°) so every ball lands inside a matching-color hoop, with a visual Stack Proof overlay.</p>
+        <div class="actions">
+          <a class="btn btn-primary btn-swish" href="./swish/">Play Now</a>
+          <a class="btn" href="./downloads/swish.apk" download>Android APK</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <img src="./ricochet-robots/icons/icon.svg" alt="Ricochet Robots icon">
+          <div>
+            <h2>Ricochet Robots</h2>
+            <div class="tag">16×16 Sliding Puzzle · Exact BFS Par</div>
+          </div>
+        </div>
+        <p>Slide 4 robots across a walled 16×16 grid to reach the pulsing target in minimal moves. Daily &amp; Endless puzzles with exact optimal Par solver, Hints &amp; Watch.</p>
+        <div class="actions">
+          <a class="btn btn-primary btn-ricochet" href="./ricochet-robots/">Play Now</a>
+          <a class="btn" href="./downloads/ricochet-robots.apk" download>Android APK</a>
         </div>
       </article>
     </section>
 
     <section class="guide">
-      <h3>Install Offline on Any Device</h3>
+      <h3>Install Offline on iOS &amp; Android</h3>
       <ul>
-        <li><strong>Android (Standalone APK):</strong> Tap <em>Android APK</em> above, open the downloaded file, and tap <em>Install</em>. Runs 100% offline with zero permissions.</li>
-        <li><strong>Android (Chrome PWA):</strong> Tap <em>Play Now</em>, then open Chrome's <strong>⋮</strong> menu → <em>Add to Home screen / Install app</em>.</li>
-        <li><strong>iPhone &amp; iPad (Safari):</strong> Tap <em>Play Now</em>, tap the <strong>Share</strong> icon → <em>Add to Home Screen</em>. Works completely offline afterward!</li>
+        <li><strong>iPhone &amp; iPad (Safari):</strong> Open any game via <em>Play Now</em>, tap the <strong>Share</strong> button (↑) in Safari, then tap <strong>Add to Home Screen</strong>. Each game installs as its own full-screen offline app icon!</li>
+        <li><strong>Android (Standalone APK):</strong> Tap <em>Android APK</em> on any card, open the downloaded file, and tap <em>Install</em>. Runs 100% offline with zero permissions.</li>
+        <li><strong>Android / Desktop (Chrome PWA):</strong> Tap <em>Play Now</em>, then use Chrome's menu → <em>Install app / Add to Home screen</em>.</li>
       </ul>
     </section>
   </main>

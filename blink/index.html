@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <script>
+    try {
+      document.querySelector('meta[name="color-scheme"]').content =
+        localStorage.getItem('color-scheme') ?? 'light dark';
+    } catch {}
+  </script>
+  <meta name="theme-color" content="#f3f0e8" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#12161f" media="(prefers-color-scheme: dark)">
+  <meta name="description" content="Blink — the world's fastest visual matching card game for tablets and desktop.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Blink</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="./icons/icon.svg">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell" id="app-shell">
+    <header class="topbar">
+      <div class="top-left">
+        <button type="button" class="mode-trigger" id="btn-mode" title="Change game mode">
+          <span id="mode-trigger-label">Sprint</span>
+          <span class="caret" aria-hidden="true">▾</span>
+        </button>
+
+        <div class="inline-stats" id="hud-stats" aria-label="Game statistics">
+          <span class="inline-stat" id="stat-timer-wrap"><span id="stat-timer">00:00</span></span>
+          <span class="inline-stat"><strong id="stat-left">30</strong> <span class="stat-unit">left</span></span>
+          <span class="inline-stat" id="stat-opp-wrap" hidden><span class="stat-unit" id="stat-opp-label">Bot</span> <strong id="stat-opp">29</strong></span>
+          <span class="inline-stat" id="stat-streak-wrap" aria-label="Streak">🔥<span id="stat-streak">0</span></span>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <button type="button" class="icon-btn" id="btn-new" aria-label="New game" title="New game">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="23 4 23 10 17 10"/>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+          </svg>
+        </button>
+        <button type="button" class="icon-btn" id="btn-rules" aria-label="How to play" title="How to play">?</button>
+        <button type="button" class="icon-btn" id="btn-settings" aria-label="Settings" title="Settings">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="table-stage" id="table-stage">
+      <!-- Opponent / Player 2 Top Zone (hidden in Solo Sprint) -->
+      <section class="hand-zone zone-p2" id="zone-p2" hidden aria-label="Opponent hand">
+        <div class="hand-row" id="hand-p2"></div>
+        <div class="zone-meta">
+          <span class="player-badge badge-p2" id="badge-p2">P2 · 29 left</span>
+        </div>
+      </section>
+
+      <!-- Shared 2 Center Discard Piles -->
+      <section class="center-zone" aria-label="Center discard piles">
+        <button type="button" class="blink-card pile-card" id="pile-0" aria-label="Left discard pile"></button>
+        <div class="center-divider">
+          <button type="button" class="flip-btn" id="btn-flip" hidden>Flip Piles</button>
+          <div class="float-toast" id="status-banner" role="status" aria-live="polite" data-visible="false">
+            <span id="status-text"></span>
+          </div>
+        </div>
+        <button type="button" class="blink-card pile-card" id="pile-1" aria-label="Right discard pile"></button>
+      </section>
+
+      <!-- Player 1 Bottom Hand Zone (3 large cards) -->
+      <section class="hand-zone zone-p1" aria-label="Your hand">
+        <div class="zone-meta" id="meta-p1" hidden>
+          <span class="player-badge badge-p1" id="badge-p1">P1 · 29 left</span>
+        </div>
+        <div class="hand-row" id="hand-p1"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- How to Play Modal -->
+  <dialog id="dialog-rules" closedby="any" aria-labelledby="rules-title">
+    <div class="dialog-header">
+      <h1 id="rules-title">How to Play Blink</h1>
+      <form method="dialog">
+        <button type="submit" class="icon-btn" aria-label="Close">✕</button>
+      </form>
+    </div>
+    <div class="dialog-body">
+      <div class="rule-callout">
+        <strong>The Rule:</strong> Play cards from your 3-card hand onto either of the 2 center piles by matching <strong>Color</strong>, <strong>Shape</strong>, OR <strong>Count</strong>!
+      </div>
+      <ul class="feature-list">
+        <li><strong>Instant 1-Tap Play:</strong> Tap any card in your hand. If it matches only one center pile, it drops there automatically! If it matches <em>both</em> piles, tap your preferred center pile (or tap the card again for Left).</li>
+        <li><strong>No Moves?</strong> Tap <strong>Flip Piles</strong> in the middle to deal fresh center cards.</li>
+        <li><strong>Sprint:</strong> Empty your 30-card deck as fast as possible.</li>
+        <li><strong>vs Bot:</strong> Real-time race against an AI opponent sharing the same 2 center piles!</li>
+        <li><strong>2P Duel:</strong> Lay the tablet flat between two players—first to empty all 29 cards wins!</li>
+      </ul>
+    </div>
+    <form method="dialog" class="dialog-footer">
+      <button type="submit" class="action-btn action-primary" autofocus>Play</button>
+    </form>
+  </dialog>
+
+  <!-- Settings & Mode Modal -->
+  <dialog id="dialog-settings" closedby="any" aria-labelledby="settings-title">
+    <div class="dialog-header">
+      <h1 id="settings-title">Game &amp; Settings</h1>
+      <form method="dialog">
+        <button type="submit" class="icon-btn" aria-label="Close">✕</button>
+      </form>
+    </div>
+    <div class="dialog-body settings-list">
+      <div class="setting-stack">
+        <div class="setting-title">Mode</div>
+        <div class="segmented segmented-3" role="radiogroup" aria-label="Game mode">
+          <button type="button" class="seg-btn" data-mode="sprint" aria-checked="true">Sprint</button>
+          <button type="button" class="seg-btn" data-mode="bot" aria-checked="false">vs Bot</button>
+          <button type="button" class="seg-btn" data-mode="duel" aria-checked="false">2P Duel</button>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-title">Bot speed</div>
+          <div class="setting-desc">Pace in vs Bot mode</div>
+        </div>
+        <div class="segmented" role="radiogroup" aria-label="Bot speed">
+          <button type="button" class="seg-btn" data-botspeed="easy" aria-checked="false">Chill</button>
+          <button type="button" class="seg-btn" data-botspeed="medium" aria-checked="true">Normal</button>
+          <button type="button" class="seg-btn" data-botspeed="fast" aria-checked="false">Fast</button>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-title">Appearance</div>
+          <div class="setting-desc" id="scheme-system-hint">System preference</div>
+        </div>
+        <div class="segmented" role="radiogroup" aria-label="Color scheme">
+          <button type="button" class="seg-btn" data-scheme="system" aria-checked="true">System</button>
+          <button type="button" class="seg-btn" data-scheme="light" aria-checked="false">Light</button>
+          <button type="button" class="seg-btn" data-scheme="dark" aria-checked="false">Dark</button>
+        </div>
+      </div>
+
+      <label class="setting-row setting-toggle">
+        <div>
+          <div class="setting-title">Sound effects</div>
+          <div class="setting-desc">Crisp card-slap and victory chimes</div>
+        </div>
+        <input type="checkbox" id="opt-sound" checked>
+      </label>
+
+      <div class="best-times-box">
+        <div class="setting-title">Personal Records</div>
+        <div class="records-grid" id="records-grid"></div>
+      </div>
+    </div>
+    <form method="dialog" class="dialog-footer">
+      <button type="submit" class="action-btn action-primary" autofocus>Done</button>
+    </form>
+  </dialog>
+
+  <!-- Victory / Summary Modal -->
+  <dialog id="dialog-win" closedby="any" aria-labelledby="win-title">
+    <div class="dialog-header">
+      <h1 id="win-title">Blink!</h1>
+      <form method="dialog">
+        <button type="submit" class="icon-btn" aria-label="Close">✕</button>
+      </form>
+    </div>
+    <div class="dialog-body">
+      <p class="win-subtitle" id="win-subtitle">Deck emptied!</p>
+      <div class="win-stats" id="win-stats"></div>
+    </div>
+    <form method="dialog" class="dialog-footer">
+      <button type="submit" value="close" class="action-btn">Close</button>
+      <button type="submit" value="new" class="action-btn action-primary" autofocus>Play Again</button>
+    </form>
+  </dialog>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

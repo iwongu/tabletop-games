@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="108" fill="#0284c7"/>
+  <rect x="86" y="64" width="340" height="384" rx="46" fill="#ffffff" stroke="#bae6fd" stroke-width="14"/>
+  <!-- Bold Lightning Bolt emblem -->
+  <path d="M294 106 L158 274 L250 274 L220 406 L360 232 L264 232 Z" fill="#f59e0b" stroke="#b45309" stroke-width="10" stroke-linejoin="round"/>
+</svg>

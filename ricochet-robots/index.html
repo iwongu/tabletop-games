@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="color-scheme" content="light dark">
+  <script>
+    try {
+      document.querySelector('meta[name="color-scheme"]').content = localStorage.getItem('ricochet-color-scheme') ?? 'light dark';
+    } catch {}
+  </script>
+  <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f1f5f9" media="(prefers-color-scheme: light)">
+  <title>Ricochet Robots</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Ricochet Robots">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="top-bar">
+      <div class="mode-pills" role="tablist" aria-label="Game mode">
+        <button type="button" class="pill active" data-mode="daily" role="tab" aria-selected="true">Daily</button>
+        <button type="button" class="pill" data-mode="endless" role="tab" aria-selected="false">Endless</button>
+      </div>
+
+      <div class="stat-bar" aria-live="polite">
+        <span class="stat-chip"><strong id="moves-val">0</strong><span class="stat-sep">/</span><span>Par <strong id="par-val">–</strong></span></span>
+        <span class="stat-chip" id="solved-chip" hidden>★ <strong id="solved-val">0</strong></span>
+      </div>
+
+      <div class="top-actions">
+        <button type="button" class="icon-btn" id="undo-btn" aria-label="Undo move" title="Undo (Z)" disabled>↶</button>
+        <button type="button" class="icon-btn" id="hint-btn" aria-label="Optimal hint" title="Hint (H)">✦</button>
+        <button type="button" class="icon-btn" id="reset-btn" aria-label="Reset puzzle" title="Reset">↻</button>
+        <button type="button" class="icon-btn" id="rules-btn" aria-label="How to play" title="Rules">?</button>
+        <button type="button" class="icon-btn" id="settings-btn" aria-label="Settings" title="Settings">⚙</button>
+      </div>
+    </header>
+
+    <main class="stage">
+      <div class="board-wrap" id="board-wrap">
+        <svg id="board-svg" class="board-svg" viewBox="0 0 1600 1600" role="img" aria-label="16 by 16 Ricochet Robots board"></svg>
+        <div id="robots-layer" class="robots-layer" aria-label="Robots"></div>
+      </div>
+    </main>
+
+    <div class="bottom-dock" aria-label="Robot controls">
+      <div class="robot-picker" id="robot-picker" role="radiogroup" aria-label="Select robot"></div>
+      <button type="button" class="dock-btn" id="new-btn" hidden>New</button>
+      <button type="button" class="dock-btn secondary" id="demo-btn" title="Watch optimal solution">Watch</button>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  </div>
+
+  <!-- Rules Dialog -->
+  <dialog id="rules-dialog" closedby="any" aria-labelledby="rules-title">
+    <form method="dialog" class="modal-card">
+      <div class="modal-header">
+        <h1 id="rules-title">How to Play</h1>
+        <button type="submit" class="icon-btn" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <p>Guide the <strong>matching-color robot</strong> onto the pulsing target square in as few moves as possible.</p>
+        <ul>
+          <li><strong>Slide until stopped:</strong> Robots never stop mid-floor — they glide straight until hitting a wall or another robot.</li>
+          <li><strong>Teamwork:</strong> Move other robots first to act as temporary bumpers!</li>
+          <li><strong>Controls:</strong> Tap a robot (or its color chip below) then tap any glowing landing dot, or simply <strong>swipe</strong> a robot in any direction.</li>
+          <li><strong>Par:</strong> Every puzzle is solved by an exact BFS engine so <strong>Par</strong> is the true shortest path.</li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="primary-btn" autofocus>Got it</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Settings Dialog -->
+  <dialog id="settings-dialog" closedby="any" aria-labelledby="settings-title">
+    <form method="dialog" class="modal-card">
+      <div class="modal-header">
+        <h1 id="settings-title">Settings</h1>
+        <button type="submit" class="icon-btn" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="setting-group">
+          <label class="setting-label">Endless Difficulty</label>
+          <div class="segmented" id="diff-segmented" role="radiogroup" aria-label="Difficulty">
+            <button type="button" class="seg-btn" data-diff="easy">Easy (3–5)</button>
+            <button type="button" class="seg-btn active" data-diff="normal">Normal (5–8)</button>
+            <button type="button" class="seg-btn" data-diff="hard">Hard (7–10)</button>
+          </div>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label">Appearance</label>
+          <div class="segmented" id="theme-segmented" role="radiogroup" aria-label="Appearance">
+            <button type="button" class="seg-btn" data-theme="system">System</button>
+            <button type="button" class="seg-btn" data-theme="light">Light</button>
+            <button type="button" class="seg-btn" data-theme="dark">Dark</button>
+          </div>
+        </div>
+        <div class="setting-group">
+          <label class="setting-toggle">
+            <span>Sound effects</span>
+            <input type="checkbox" id="sound-toggle" checked>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="primary-btn" autofocus>Done</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Victory Dialog -->
+  <dialog id="win-dialog" closedby="any" aria-labelledby="win-title">
+    <form method="dialog" class="modal-card win-card">
+      <div class="modal-header">
+        <h1 id="win-title">Target Reached!</h1>
+        <button type="submit" class="icon-btn" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="win-badge" id="win-badge">★ Par Master!</div>
+        <div class="win-stats">
+          <div class="win-stat"><span class="win-stat-label">Your Moves</span><strong id="win-moves">6</strong></div>
+          <div class="win-stat"><span class="win-stat-label">Optimal Par</span><strong id="win-par">6</strong></div>
+        </div>
+      </div>
+      <div class="modal-footer win-actions">
+        <button type="button" class="secondary-btn" id="win-retry-btn">Try Again</button>
+        <button type="button" class="secondary-btn" id="win-watch-btn">Watch Par</button>
+        <button type="button" class="primary-btn" id="win-next-btn" autofocus>Next Puzzle</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

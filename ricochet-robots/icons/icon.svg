@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="108" fill="#0f172a"/>
+  <g stroke="#334155" stroke-width="6">
+    <line x1="176" y1="64" x2="176" y2="448"/>
+    <line x1="336" y1="64" x2="336" y2="448"/>
+    <line x1="64" y1="176" x2="448" y2="176"/>
+    <line x1="64" y1="336" x2="448" y2="336"/>
+  </g>
+  <!-- L-shaped bumper walls -->
+  <path d="M176 64 V176 H64" fill="none" stroke="#e2e8f0" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M336 448 V336 H448" fill="none" stroke="#e2e8f0" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Ricochet path -->
+  <path d="M120 392 L392 392 L392 120" fill="none" stroke="#facc15" stroke-width="14" stroke-dasharray="22 18" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- 4 Robots -->
+  <circle cx="120" cy="392" r="44" fill="#ef4444" stroke="#ffffff" stroke-width="8"/>
+  <circle cx="392" cy="120" r="46" fill="none" stroke="#ef4444" stroke-width="12"/>
+  <circle cx="392" cy="120" r="22" fill="#ef4444"/>
+  <circle cx="120" cy="120" r="38" fill="#3b82f6" stroke="#ffffff" stroke-width="7"/>
+  <circle cx="256" cy="256" r="38" fill="#10b981" stroke="#ffffff" stroke-width="7"/>
+  <circle cx="392" cy="392" r="34" fill="#f59e0b" stroke="#ffffff" stroke-width="7"/>
+</svg>
